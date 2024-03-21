@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ifd_kuis_nanang/pages/login.dart';
 import 'package:ifd_kuis_nanang/pages/home.dart';
-import 'package:ifd_kuis_nanang/pages/detail.dart';
 
 
 void main() {
@@ -17,7 +16,6 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/home': (context) => HomePage(),
-        '/detail': (context) => DetailPage(),
       },
     );
   }

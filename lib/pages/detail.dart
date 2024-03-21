@@ -1,63 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:ifd_kuis_nanang/data/data_buku.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
+  final DataBuku buku;
+
+  DetailPage({required this.buku});
+
+  @override
+  _DetailPageState createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  bool _isAvailable = true;
+
   @override
   Widget build(BuildContext context) {
-    final DataBuku place = ModalRoute.of(context)!.settings.arguments as DataBuku;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(place.title),
-        backgroundColor: Colors.blueAccent,
+        title: Text('Detail Buku'),
+        backgroundColor: Colors.blueGrey,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+      body: Padding(
+        padding: EdgeInsets.all(30.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: CircleAvatar(
-                radius: 200,
-                backgroundImage: NetworkImage(place.imageLink),
+              child: InkWell(
+                onTap: () {
+                  _launchURL(widget.buku.link);
+                },
+                child: Image.network(
+                  widget.buku.imageLink,
+                  height: 480,
+                ),
               ),
             ),
             SizedBox(height: 20),
             Text(
-              'Penulis: ${place.author}',
-              style: TextStyle(fontSize: 18),
+              'Judul: ${widget.buku.title}',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
-            Text(
-              'Bahasa: ${place.language}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Jumlah halaman: ${place.pages}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Tahun Terbit: ${place.year} cm',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Status: ${place.isAvailable}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
+            Text('Penulis: ${widget.buku.author}'),
+            Text('Bahasa: ${widget.buku.language}'),
+            Text('Negara: ${widget.buku.country}'),
+            Text('Jumlah Halaman: ${widget.buku.pages}'),
+            Text('Tahun Terbit: ${widget.buku.year}'),
+            SizedBox(height: 20),
+            _isAvailable
+                ? ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/pilih');
+                setState(() {
+                  _isAvailable = false;
+                });
+                _showSnackBar(context, 'Berhasil meminjam buku');
               },
-              child: Text('pilih'),
+              style: ButtonStyle(
+                minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
+                backgroundColor: MaterialStateProperty.all(Colors.green),
+              ),
+              child: Text(
+                'Pinjam',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            )
+                : ElevatedButton(
+              onPressed: null,
+              child: Text('Tidak Tersedia'),
+              style: ButtonStyle(
+                minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
+                backgroundColor: MaterialStateProperty.all(Colors.grey),
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
 
+  void _launchURL(String url) async {   //url launcer
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
